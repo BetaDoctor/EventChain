@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="500" viewBox="0 0 1500 500">
+  <defs>
+    <filter id="neon" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="b1"/>
+      <feGaussianBlur stdDeviation="14" in="SourceGraphic" result="b2"/>
+      <feMerge><feMergeNode in="b2"/><feMergeNode in="b1"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+      <rect width="1500" height="500" fill="#0a0f1c"/>
+      <g transform="translate(120 90) scale(13.3)" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" >
+  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+</g>
+      <text x="520" y="270" font-family="Inter,system-ui,sans-serif" font-size="130" font-weight="800" fill="#38bdf8" letter-spacing="-3" >EventChain</text>
+      <text x="524" y="320" font-family="Inter,system-ui,sans-serif" font-size="22" font-weight="500" fill="#9ca3af" letter-spacing="5" opacity="0.8">PREDICTION MARKETS ON CARDANO</text>
+      <line x1="524" y1="345" x2="660" y2="345" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+    </svg>

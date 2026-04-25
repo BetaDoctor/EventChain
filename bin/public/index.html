@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EventChain — Prediction Markets</title>
+  <link rel="icon" type="image/svg+xml" href="/img/favicon.svg" />
+  <link rel="stylesheet" href="/tailwind.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-[#080b12] text-gray-100 flex flex-col" style="height:100vh; overflow:hidden;">
+
+  <!-- HEADER (banner + controls in one row) -->
+  <header class="bg-[#0a0f1c] sticky top-0 z-50">
+    <!-- Top strip: network badge + wallet info -->
+    <div class="flex items-center justify-between px-6 py-2">
+      <span class="text-xs text-green-400 border border-green-800 rounded px-1.5 py-0.5">MAINNET</span>
+      <div class="flex items-center gap-4">
+        <div id="ect-balance" class="hidden items-center gap-2 text-sm">
+          <span class="text-gray-400">Balance:</span>
+          <span id="balance-value" class="font-mono font-semibold text-green-400">0 ECT</span>
+        </div>
+        <div id="wallet-info" class="hidden items-center gap-2 text-sm">
+          <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+          <span id="wallet-address" class="text-gray-300 font-mono text-xs"></span>
+        </div>
+        <button id="connect-btn"
+          class="bg-blue-600 hover:bg-blue-500 transition-colors px-4 py-2 rounded-lg text-sm font-semibold">
+          Connect Wallet
+        </button>
+      </div>
+    </div>
+    <!-- Bottom row: centered logo (negative margins crop SVG whitespace) -->
+    <div class="flex items-center justify-center px-6 overflow-hidden" style="height:110px;">
+      <img src="/img/site-banner.svg" alt="EventChain"
+           class="block"
+           style="height:180px; width:auto; margin-top:-35px; margin-bottom:-35px;" />
+    </div>
+  </header>
+
+  <div class="flex flex-1 overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="w-56 border-r border-[#1e2d45] bg-[#0a0f1c] flex-shrink-0 hidden md:block">
+      <!-- Scrollable region: categories + my bets -->
+      <div id="sidebar-scroll">
+        <p class="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold">Categories</p>
+        <nav class="space-y-1">
+          <button class="category-btn active w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-cat="All">
+            All Markets
+          </button>
+          <button class="category-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-cat="Crypto">
+            Crypto
+          </button>
+          <button class="category-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-cat="Politics">
+            Politics
+          </button>
+          <button class="category-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-cat="Sports">
+            Sports
+          </button>
+          <button class="category-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-cat="Science">
+            Science
+          </button>
+          <button class="category-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-cat="Economics">
+            Economics
+          </button>
+          <button class="category-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-cat="DeFi">
+            DeFi
+          </button>
+          <hr class="border-[#1e2d45] my-3" />
+          <button class="category-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-cat="__resolved__">
+            Resolved
+          </button>
+        </nav>
+      </div>
+
+      <!-- PINNED BOTTOM -->
+      <div id="sidebar-footer">
+        <!-- ⚠ REPLACE href below with your own X handle. -->
+        <a href="#"
+           target="_blank" rel="noopener"
+           class="w-full text-xs text-gray-400 hover:text-gray-200 border border-[#1e2d45] hover:border-[#2d4165] rounded-lg px-3 py-2 transition-colors"
+           style="margin-bottom:0.5rem; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          Follow on X
+        </a>
+        <!-- ⚠ REPLACE href below with your own Telegram link. -->
+        <a href="#"
+           target="_blank" rel="noopener"
+           class="w-full text-xs text-gray-400 hover:text-gray-200 border border-[#1e2d45] hover:border-[#2d4165] rounded-lg px-3 py-2 transition-colors"
+           style="margin-bottom:0.5rem; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/>
+          </svg>
+          Join Telegram
+        </a>
+        <!-- ⚠ REPLACE href below with your own Discord invite. -->
+        <a href="#"
+           target="_blank" rel="noopener"
+           class="w-full text-xs text-gray-400 hover:text-gray-200 border border-[#1e2d45] hover:border-[#2d4165] rounded-lg px-3 py-2 transition-colors"
+           style="margin-bottom:0.5rem; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+          </svg>
+          Join Discord
+        </a>
+        <!-- ⚠ REPLACE href below with your Minswap swap URL (insert your policy id + asset name hex). -->
+        <a href="#"
+           target="_blank" rel="noopener"
+           class="w-full text-xs font-medium text-white rounded-lg px-3 py-2 transition-colors"
+           style="margin-bottom:0.5rem; display:flex; align-items:center; justify-content:center; gap:0.5rem; background:#2563eb;"
+           onmouseover="this.style.background='#3b82f6'"
+           onmouseout="this.style.background='#2563eb'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 10h14l-4-4"/>
+            <path d="M17 14H3l4 4"/>
+          </svg>
+          Get ECT on Minswap
+        </a>
+        <button id="whitepaper-btn"
+           class="w-full text-xs text-gray-400 hover:text-gray-200 border border-[#1e2d45] hover:border-[#2d4165] rounded-lg px-3 py-2 transition-colors"
+           style="display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+          <svg width="12" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="8" y1="13" x2="16" y2="13"/>
+            <line x1="8" y1="17" x2="16" y2="17"/>
+          </svg>
+          Whitepaper
+        </button>
+      </div>
+    </aside>
+
+    <style>
+      /* Desktop-only sidebar flex column so the footer sticks to the bottom.
+         Uses plain CSS + !important to survive Tailwind's hidden/block utilities
+         and any tree-shaking quirks. */
+      @media (min-width: 768px) {
+        #sidebar, #sidebar-right {
+          display: flex !important;
+          flex-direction: column;
+        }
+        #sidebar-scroll, #sidebar-right-scroll {
+          flex: 1 1 auto;
+          overflow-y: auto;
+          padding: 1rem;
+        }
+        #sidebar-footer {
+          flex: 0 0 auto;
+          padding: 1rem;
+          border-top: 1px solid #1e2d45;
+          background: #0a0f1c;
+        }
+      }
+    </style>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 overflow-y-auto p-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h1 class="text-xl font-bold">Prediction Markets</h1>
+            <p class="text-sm text-gray-400 mt-0.5">Trade on real-world outcomes with ECT</p>
+          </div>
+          <div class="text-sm text-gray-500" id="market-count"></div>
+        </div>
+
+        <!-- MARKET GRID -->
+        <div id="market-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="col-span-full flex items-center justify-center py-16 text-gray-600">
+            Loading markets…
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside id="sidebar-right" class="w-56 border-l border-[#1e2d45] bg-[#0a0f1c] flex-shrink-0 hidden md:block">
+      <div id="sidebar-right-scroll">
+        <div id="my-bets-panel" class="hidden">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold">My Bets</p>
+            <button id="refresh-my-bets-btn" class="text-xs text-blue-500 hover:text-blue-400">↻</button>
+          </div>
+          <div id="my-bets-list" class="space-y-2"></div>
+        </div>
+        <div id="my-bets-empty" class="text-xs text-gray-600 text-center py-8">
+          Connect your wallet to see your bets here.
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- WALLET MODAL -->
+  <div id="wallet-modal" class="modal-overlay hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0f1623] border border-[#1e2d45] rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-lg font-bold">Connect Wallet</h2>
+        <button id="wallet-modal-close" class="text-gray-500 hover:text-gray-300 transition-colors text-xl leading-none">&times;</button>
+      </div>
+      <p class="text-sm text-gray-400 mb-4">Select a CIP-30 compatible Cardano wallet:</p>
+      <div id="wallet-list" class="space-y-2"></div>
+      <p class="text-xs text-gray-600 mt-4 text-center">Connecting to Preprod testnet</p>
+    </div>
+  </div>
+
+  <!-- TRADE MODAL -->
+  <!-- TOAST / INFO MODAL -->
+  <div id="toast-modal" class="modal-overlay hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+    <div id="toast-card" class="bg-[#0f1623] border border-[#1e2d45] rounded-2xl p-6 w-full max-w-md shadow-2xl">
+      <div class="flex items-start gap-3 mb-4">
+        <div id="toast-icon" class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-lg"></div>
+        <h2 id="toast-title" class="text-lg font-bold flex-1 pt-0.5"></h2>
+        <button id="toast-close" class="text-gray-500 hover:text-gray-300 transition-colors text-xl leading-none">&times;</button>
+      </div>
+      <p id="toast-message" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap break-words mb-5"></p>
+      <a id="toast-link" href="#" target="_blank" rel="noopener"
+         class="hidden w-full block mb-3 py-2.5 rounded-lg text-sm font-semibold transition-colors text-center border border-[#1e2d45] text-gray-200 hover:text-white hover:border-blue-700"></a>
+      <button id="toast-ok" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors bg-blue-600 hover:bg-blue-500 text-white">
+        OK
+      </button>
+    </div>
+  </div>
+
+  <div id="trade-modal" class="modal-overlay hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0f1623] border border-[#1e2d45] rounded-2xl p-6 w-full max-w-md shadow-2xl">
+      <div class="flex items-center justify-between mb-1">
+        <h2 class="text-lg font-bold">Place Order</h2>
+        <button id="trade-modal-close" class="text-gray-500 hover:text-gray-300 transition-colors text-xl leading-none">&times;</button>
+      </div>
+      <p id="trade-market-title" class="text-sm text-gray-400 mb-5 leading-snug"></p>
+
+      <!-- YES/NO Toggle -->
+      <div class="flex rounded-lg overflow-hidden border border-[#1e2d45] mb-5">
+        <button id="trade-yes-btn"
+          class="flex-1 py-2.5 text-sm font-semibold transition-colors trade-side-btn"
+          data-side="YES">
+          YES
+        </button>
+        <button id="trade-no-btn"
+          class="flex-1 py-2.5 text-sm font-semibold transition-colors trade-side-btn"
+          data-side="NO">
+          NO
+        </button>
+      </div>
+
+      <!-- Price display -->
+      <div class="bg-[#080b12] rounded-lg p-4 mb-5 space-y-2">
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-400">Price per share</span>
+          <span id="trade-price" class="font-mono font-semibold"></span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-400">Implied probability</span>
+          <span id="trade-prob" class="font-mono text-gray-300"></span>
+        </div>
+      </div>
+
+      <!-- Shares input -->
+      <div class="mb-5">
+        <label class="text-sm text-gray-400 block mb-2">Number of shares</label>
+        <input id="trade-shares" type="number" min="1" value="10"
+          class="w-full bg-[#080b12] border border-[#1e2d45] rounded-lg px-4 py-3 text-sm font-mono focus:outline-none focus:border-blue-500 transition-colors" />
+      </div>
+
+      <!-- Cost summary -->
+      <div class="bg-[#080b12] rounded-lg p-4 mb-3 space-y-2">
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-400">Your stake</span>
+          <span id="trade-cost" class="font-mono font-semibold text-blue-400"></span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-400">If losers' pool = winners' pool</span>
+          <span id="trade-return" class="font-mono font-semibold text-green-400"></span>
+        </div>
+      </div>
+      <p class="text-[11px] text-gray-500 mb-5 leading-relaxed">
+        Pari-mutuel: winners split losers' stakes pro-rata, minus a 3% house fee.
+        Your actual payout depends on the final split.
+      </p>
+
+      <button id="trade-submit-btn"
+        class="w-full py-3 rounded-lg text-sm font-bold transition-colors">
+        Buy Shares
+      </button>
+    </div>
+  </div>
+
+  <!-- WHITEPAPER MODAL -->
+  <div id="whitepaper-modal" class="modal-overlay hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6 md:p-10">
+    <div class="relative bg-[#0f1623] border border-[#1e2d45] rounded-2xl w-full max-w-5xl max-h-[90vh] shadow-2xl flex flex-col">
+      <!-- Sticky header -->
+      <div class="flex items-center justify-between px-10 py-6 border-b border-[#1e2d45] flex-shrink-0">
+        <h2 class="text-xl font-bold">Whitepaper</h2>
+        <button id="whitepaper-modal-close"
+                aria-label="Close"
+                class="w-9 h-9 rounded-full border border-[#1e2d45] hover:border-[#2d4165] hover:bg-[#1a2538] text-gray-400 hover:text-white transition-colors flex items-center justify-center text-lg leading-none">
+          &times;
+        </button>
+      </div>
+      <!-- Scrollable body with generous padding -->
+      <div class="overflow-y-auto px-10 md:px-14 py-10">
+        <!-- Resource links bar — add more buttons here as the project grows -->
+        <div id="whitepaper-resources" class="flex flex-wrap gap-2 mb-8 pb-6 border-b border-[#1e2d45]">
+          <!-- ⚠ REPLACE href below with cexplorer policy URL for your token. -->
+          <a href="#"
+             target="_blank" rel="noopener"
+             class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-300 hover:text-white bg-[#080b12] hover:bg-[#1a2538] border border-[#1e2d45] hover:border-[#2d4165] rounded-lg px-3 py-2 transition-colors">
+            <span>🔎</span> View token info
+          </a>
+          <a id="whitepaper-contract-link" href="#"
+             target="_blank" rel="noopener"
+             class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-300 hover:text-white bg-[#080b12] hover:bg-[#1a2538] border border-[#1e2d45] hover:border-[#2d4165] rounded-lg px-3 py-2 transition-colors">
+            <span>📜</span> View contract
+          </a>
+          <!-- ⚠ REPLACE href below with your own GitHub repo URL. -->
+          <a href="#"
+             target="_blank" rel="noopener"
+             class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-300 hover:text-white bg-[#080b12] hover:bg-[#1a2538] border border-[#1e2d45] hover:border-[#2d4165] rounded-lg px-3 py-2 transition-colors">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.38 7.86 10.9.58.11.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.25 3.34.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.27-5.24-5.67 0-1.25.45-2.27 1.18-3.07-.12-.29-.51-1.45.11-3.02 0 0 .97-.31 3.18 1.18a11.04 11.04 0 0 1 5.78 0c2.21-1.49 3.18-1.18 3.18-1.18.62 1.57.23 2.73.11 3.02.74.8 1.18 1.82 1.18 3.07 0 4.41-2.69 5.38-5.26 5.66.41.35.77 1.05.77 2.12v3.14c0 .31.21.67.8.56C20.21 21.38 23.5 17.08 23.5 12 23.5 5.73 18.27.5 12 .5z"/>
+            </svg>
+            View contract source
+          </a>
+          <span title="Coming soon — pool not yet created"
+             class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-[#080b12] border border-dashed border-[#1e2d45] rounded-lg px-3 py-2 cursor-not-allowed opacity-60">
+            <span>🏊</span> View pool <span class="text-[10px] text-gray-600">(soon)</span>
+          </span>
+          <span title="Coming soon — token registry PR pending"
+             class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-[#080b12] border border-dashed border-[#1e2d45] rounded-lg px-3 py-2 cursor-not-allowed opacity-60">
+            <span>📋</span> Token registry <span class="text-[10px] text-gray-600">(soon)</span>
+          </span>
+          <span title="Coming soon — LP will be burned after pool creation"
+             class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-[#080b12] border border-dashed border-[#1e2d45] rounded-lg px-3 py-2 cursor-not-allowed opacity-60">
+            <span>🔥</span> LP burn tx <span class="text-[10px] text-gray-600">(soon)</span>
+          </span>
+        </div>
+        <!-- Rendered markdown goes here -->
+        <div id="whitepaper-body" class="text-sm text-gray-300 leading-relaxed whitepaper-prose">
+          <p class="text-gray-500 text-center py-8">Loading...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .whitepaper-prose h1 { font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0 0 .75rem; }
+    .whitepaper-prose h2 { font-size: 1.15rem; font-weight: 700; color: #fff; margin: 1.5rem 0 .5rem; padding-top: .5rem; border-top: 1px solid #1e2d45; }
+    .whitepaper-prose h3 { font-size: 1rem; font-weight: 600; color: #e5e7eb; margin: 1rem 0 .4rem; }
+    .whitepaper-prose p  { margin: 0 0 .75rem; }
+    .whitepaper-prose ul { margin: 0 0 .75rem; padding-left: 1.25rem; list-style: disc; }
+    .whitepaper-prose li { margin-bottom: .25rem; }
+    .whitepaper-prose strong { color: #fff; font-weight: 600; }
+    .whitepaper-prose em { color: #d1d5db; font-style: italic; }
+    .whitepaper-prose code { background: #080b12; border: 1px solid #1e2d45; border-radius: 4px; padding: 1px 6px; font-family: ui-monospace, SFMono-Regular, monospace; font-size: .8rem; color: #e5e7eb; word-break: break-all; }
+    .whitepaper-prose hr { border: 0; border-top: 1px solid #1e2d45; margin: 1.5rem 0; }
+    .whitepaper-prose a  { color: #60a5fa; text-decoration: underline; }
+    .whitepaper-prose a:hover { color: #93c5fd; }
+    .whitepaper-prose blockquote { border-left: 3px solid #3b82f6; padding: .25rem 0 .25rem .75rem; margin: .75rem 0; color: #d1d5db; background: #080b12; border-radius: 0 6px 6px 0; }
+    .whitepaper-prose table { width: 100%; border-collapse: collapse; margin: .75rem 0; font-size: .85rem; }
+    .whitepaper-prose th, .whitepaper-prose td { border: 1px solid #1e2d45; padding: .5rem .75rem; text-align: left; vertical-align: top; }
+    .whitepaper-prose th { background: #080b12; color: #fff; font-weight: 600; }
+  </style>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EventChain — Admin</title>
+  <link rel="icon" type="image/svg+xml" href="/img/favicon.svg" />
+  <link rel="stylesheet" href="/tailwind.css" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="wallet-shared.js"></script>
+</head>
+<body class="bg-[#080b12] text-gray-100 min-h-screen flex flex-col">
+
+  <header class="border-b border-[#1e2d45] bg-[#0a0f1c] px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <a href="/" class="text-sm font-semibold text-gray-300 hover:text-white">EventChain</a>
+      <span class="text-xs text-yellow-400 border border-yellow-800 rounded px-1.5 py-0.5">ADMIN</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <span id="session-info" class="text-xs text-gray-400 hidden"></span>
+      <button id="logout-btn" class="hidden bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-sm">Logout</button>
+    </div>
+  </header>
+
+  <main class="flex-1 flex">
+
+    <!-- LOGIN SCREEN -->
+    <section id="login-screen" class="py-16 text-center flex-1">
+      <h1 class="text-2xl font-bold mb-2">Admin Panel</h1>
+      <p class="text-gray-400 mb-8">Connect the oracle wallet to continue.</p>
+      <div id="login-status" class="text-sm text-gray-500 mb-4 min-h-[1.5rem]"></div>
+      <div id="wallet-list" class="flex flex-col gap-2 max-w-xs mx-auto"></div>
+    </section>
+
+    <!-- ADMIN PANEL -->
+    <section id="admin-panel" class="hidden flex-1 flex">
+
+      <!-- SIDEBAR -->
+      <aside class="w-48 border-r border-[#1e2d45] bg-[#0a0f1c] flex-shrink-0 p-4 flex flex-col gap-1">
+        <p class="text-xs text-gray-500 uppercase tracking-widest mb-2 font-semibold">Sections</p>
+        <button class="tab-btn active w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="open">
+          Open <span class="tab-count text-xs text-gray-500 ml-1" data-count="open"></span>
+        </button>
+        <button class="tab-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="resolved">
+          Resolved <span class="tab-count text-xs text-gray-500 ml-1" data-count="resolved"></span>
+        </button>
+        <button class="tab-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="refunded">
+          Refunded <span class="tab-count text-xs text-gray-500 ml-1" data-count="refunded"></span>
+        </button>
+        <button class="tab-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="hidden">
+          Hidden <span class="tab-count text-xs text-gray-500 ml-1" data-count="hidden"></span>
+        </button>
+      </aside>
+
+      <!-- CONTENT -->
+      <div class="flex-1 p-6 max-w-5xl w-full">
+        <div class="flex items-center justify-between mb-6">
+          <h1 id="section-title" class="text-2xl font-bold">Open Markets</h1>
+          <button id="new-market-btn" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg text-sm font-semibold">+ New Market</button>
+        </div>
+        <div id="markets-list" class="space-y-2"></div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- TOAST / INFO MODAL -->
+  <div id="toast-modal" class="modal-overlay hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+    <div id="toast-card" class="bg-[#0f1623] border border-[#1e2d45] rounded-2xl p-6 w-full max-w-md shadow-2xl">
+      <div class="flex items-start gap-3 mb-4">
+        <div id="toast-icon" class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-lg"></div>
+        <h2 id="toast-title" class="text-lg font-bold flex-1 pt-0.5"></h2>
+        <button id="toast-close" class="text-gray-500 hover:text-gray-300 transition-colors text-xl leading-none">&times;</button>
+      </div>
+      <p id="toast-message" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap break-words mb-5"></p>
+      <a id="toast-link" href="#" target="_blank" rel="noopener"
+         class="hidden w-full block mb-3 py-2.5 rounded-lg text-sm font-semibold transition-colors text-center border border-[#1e2d45] text-gray-200 hover:text-white hover:border-blue-700"></a>
+      <button id="toast-ok" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors bg-blue-600 hover:bg-blue-500 text-white">
+        OK
+      </button>
+    </div>
+  </div>
+
+  <!-- CONFIRM MODAL -->
+  <div id="confirm-modal" class="modal-overlay hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+    <div id="confirm-card" class="bg-[#0f1623] border border-[#1e2d45] rounded-2xl p-6 w-full max-w-md shadow-2xl">
+      <div class="flex items-start gap-3 mb-4">
+        <div id="confirm-icon" class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-lg bg-yellow-900/40 text-yellow-300 font-bold">?</div>
+        <h2 id="confirm-title" class="text-lg font-bold flex-1 pt-0.5"></h2>
+        <button id="confirm-cancel-x" class="text-gray-500 hover:text-gray-300 transition-colors text-xl leading-none">&times;</button>
+      </div>
+      <p id="confirm-message" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap break-words mb-5"></p>
+      <div class="flex gap-2">
+        <button id="confirm-cancel" class="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-gray-700 hover:bg-gray-600 text-white">Cancel</button>
+        <button id="confirm-ok" class="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW MARKET MODAL -->
+  <div id="new-market-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0f1623] border border-[#1e2d45] rounded-xl p-6 w-full max-w-md">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold">Create Market</h2>
+        <button id="nm-close" class="text-gray-400 hover:text-white text-xl leading-none">&times;</button>
+      </div>
+
+      <form id="new-market-form" class="space-y-3 text-sm">
+        <label class="block">
+          <span class="text-gray-400 text-xs">ID (slug)</span>
+          <input name="id" required pattern="[a-z0-9\-]+" placeholder="e.g. eth-3k-2026"
+                 class="w-full mt-1 bg-[#080b12] border border-[#1e2d45] rounded px-3 py-2 font-mono" />
+        </label>
+
+        <label class="block">
+          <span class="text-gray-400 text-xs">Title</span>
+          <input name="title" required maxlength="200" placeholder="Will Ethereum hit $3,000 before end of 2026?"
+                 class="w-full mt-1 bg-[#080b12] border border-[#1e2d45] rounded px-3 py-2" />
+        </label>
+
+        <label class="block">
+          <span class="text-gray-400 text-xs">Category</span>
+          <select name="category" required class="w-full mt-1 bg-[#080b12] border border-[#1e2d45] rounded px-3 py-2">
+            <option value="Crypto">Crypto</option>
+            <option value="Politics">Politics</option>
+            <option value="Sports">Sports</option>
+            <option value="Science">Science</option>
+            <option value="Economics">Economics</option>
+            <option value="DeFi">DeFi</option>
+          </select>
+        </label>
+
+        <div class="grid grid-cols-2 gap-3">
+          <label class="block">
+            <span class="text-gray-400 text-xs">YES price (%)</span>
+            <input name="yesPrice" type="number" min="1" max="99" value="50" required
+                   class="w-full mt-1 bg-[#080b12] border border-[#1e2d45] rounded px-3 py-2" />
+          </label>
+          <label class="block">
+            <span class="text-gray-400 text-xs">NO price (%)</span>
+            <input name="noPrice" type="number" min="1" max="99" value="50" required
+                   class="w-full mt-1 bg-[#080b12] border border-[#1e2d45] rounded px-3 py-2" />
+          </label>
+        </div>
+
+        <label class="block">
+          <span class="text-gray-400 text-xs">Deadline</span>
+          <input name="deadline" type="datetime-local" required
+                 class="w-full mt-1 bg-[#080b12] border border-[#1e2d45] rounded px-3 py-2" />
+        </label>
+
+        <div id="nm-error" class="text-xs text-red-400 min-h-[1rem]"></div>
+
+        <button type="submit" id="nm-submit"
+                class="w-full bg-blue-600 hover:bg-blue-500 py-2.5 rounded-lg font-semibold">
+          Create
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="admin-panel.js"></script>
+</body>
+</html>

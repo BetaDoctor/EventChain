@@ -1,0 +1,83 @@
+/* EventChain — custom styles (Tailwind CDN handles utilities) */
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #080b12; }
+::-webkit-scrollbar-thumb { background: #1e2d45; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #2d4466; }
+
+/* Probability bar gradient */
+.prob-bar-yes {
+  background: linear-gradient(90deg, #00c076, #00a060);
+  box-shadow: 0 0 8px rgba(0, 192, 118, 0.4);
+}
+
+/* Market card hover glow */
+.market-card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.market-card:hover {
+  box-shadow: 0 0 0 1px #1e4080, 0 4px 24px rgba(59, 130, 246, 0.08);
+}
+
+/* Trade buttons */
+.yes-btn {
+  background: rgba(0, 192, 118, 0.12);
+  color: #00c076;
+  border: 1px solid rgba(0, 192, 118, 0.3);
+}
+.yes-btn:hover {
+  background: rgba(0, 192, 118, 0.22);
+  border-color: rgba(0, 192, 118, 0.6);
+}
+.no-btn {
+  background: rgba(255, 77, 79, 0.12);
+  color: #ff4d4f;
+  border: 1px solid rgba(255, 77, 79, 0.3);
+}
+.no-btn:hover {
+  background: rgba(255, 77, 79, 0.22);
+  border-color: rgba(255, 77, 79, 0.6);
+}
+
+/* Category sidebar buttons */
+.category-btn {
+  color: #9ca3af;
+}
+.category-btn:hover {
+  background: #1e2d45;
+  color: #e5e7eb;
+}
+.category-btn.active {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Admin tab buttons (same styling as category-btn) */
+.tab-btn {
+  color: #9ca3af;
+}
+.tab-btn:hover {
+  background: #1e2d45;
+  color: #e5e7eb;
+}
+.tab-btn.active {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Modal fade-in */
+.modal-overlay {
+  animation: fadeIn 0.15s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Number input — remove arrows */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+input[type=number] { -moz-appearance: textfield; }

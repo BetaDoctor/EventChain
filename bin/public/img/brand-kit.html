@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>EventChain — Brand Kit</title>
+<style>
+  :root { --bg:#0a0f1c; --panel:#0f1623; --border:#1e2d45; --cyan:#38BDF8; --text:#e5e7eb; --muted:#9ca3af; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; padding:40px 20px; }
+  h1 { margin:0 0 8px; font-size:28px; }
+  .sub { color:var(--muted); margin:0 0 40px; }
+  .grid { display:grid; gap:32px; max-width:1600px; margin:0 auto; }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:20px; }
+  .card h2 { margin:0 0 4px; font-size:18px; }
+  .card .meta { color:var(--muted); font-size:13px; margin:0 0 16px; }
+  .preview { background:repeating-conic-gradient(#1a1a1a 0% 25%, #222 0% 50%) 50%/20px 20px; border:1px solid var(--border); border-radius:8px; padding:12px; display:flex; justify-content:center; align-items:center; overflow:auto; }
+  .preview svg { max-width:100%; height:auto; display:block; }
+  .actions { display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+  button { background:var(--cyan); color:#0a0f1c; border:0; padding:10px 16px; font-weight:600; font-size:13px; border-radius:8px; cursor:pointer; }
+  button.secondary { background:transparent; color:var(--text); border:1px solid var(--border); }
+  button:hover { opacity:.9; }
+  .swatch { display:flex; gap:10px; align-items:center; font-size:13px; color:var(--muted); }
+  .swatch span { width:20px; height:20px; border-radius:4px; border:1px solid var(--border); display:inline-block; }
+  .toolbar { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px 20px; margin-bottom:24px; max-width:1600px; margin-left:auto; margin-right:auto; display:flex; gap:24px; flex-wrap:wrap; align-items:center; }
+  .toolbar label { font-size:13px; color:var(--muted); display:flex; gap:8px; align-items:center; }
+  .toolbar input[type="text"] { background:var(--bg); color:var(--text); border:1px solid var(--border); padding:6px 10px; border-radius:6px; font-size:13px; font-family:inherit; }
+  .toolbar input[type="color"] { width:36px; height:28px; border:1px solid var(--border); background:var(--bg); border-radius:6px; cursor:pointer; padding:2px; }
+</style>
+</head>
+<body>
+
+<h1>EventChain — Brand Kit</h1>
+<p class="sub">All assets use the same chain logo + wordmark. Edit the toolbar below to tweak every image at once. Click "Download PNG" on any card to export at the correct platform size.</p>
+
+<div class="toolbar">
+  <label>Wordmark <input type="text" id="wordmark" value="EventChain"></label>
+  <label>Tagline <input type="text" id="tagline" value="PREDICTION MARKETS ON CARDANO"></label>
+  <label>Accent <input type="color" id="accent" value="#38BDF8"></label>
+  <label>Background <input type="color" id="bg" value="#0a0f1c"></label>
+  <label><input type="checkbox" id="transparent"> Transparent bg</label>
+  <label><input type="checkbox" id="glow" checked> Neon glow</label>
+  <button class="secondary" onclick="downloadAll()">Download all PNGs</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+// ── Source chain logo paths (from /public/logo.svg) ──
+const LOGO = `
+  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+`;
+
+// ── Asset definitions ──
+// Each returns SVG inner markup (without the outer <svg> tag).
+const ASSETS = [
+  {
+    id:'avatar',
+    title:'Profile picture',
+    meta:'1024×1024 — X, Telegram, GitHub avatar (shown as circle)',
+    w:1024, h:1024,
+    render: (o) => `
+      ${o.transparent ? '' : `<rect width="1024" height="1024" fill="${o.bg}"/>`}
+      <circle cx="512" cy="512" r="480" fill="${o.bg === o.accent ? '#0a0f1c' : 'none'}" opacity="0"/>
+      <g transform="translate(512 512) scale(22) translate(-12 -12)" stroke="${o.accent}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" ${o.glow?'filter="url(#neon)"':''}>
+        ${LOGO}
+      </g>
+    `,
+  },
+  {
+    id:'avatar-circle',
+    title:'Profile picture (with ring)',
+    meta:'1024×1024 — alternative with subtle cyan ring',
+    w:1024, h:1024,
+    render: (o) => `
+      ${o.transparent ? '' : `<rect width="1024" height="1024" fill="${o.bg}"/>`}
+      <circle cx="512" cy="512" r="470" fill="none" stroke="${o.accent}" stroke-width="6" opacity="0.35"/>
+      <g transform="translate(512 512) scale(20) translate(-12 -12)" stroke="${o.accent}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" ${o.glow?'filter="url(#neon)"':''}>
+        ${LOGO}
+      </g>
+    `,
+  },
+  {
+    id:'banner-x',
+    title:'X header banner',
+    meta:'1500×500 — for twitter.com/x.com cover',
+    w:1500, h:500,
+    render: (o) => `
+      ${o.transparent ? '' : `<rect width="1500" height="500" fill="${o.bg}"/>`}
+      <g transform="translate(120 90) scale(13.3)" stroke="${o.accent}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" ${o.glow?'filter="url(#neon)"':''}>${LOGO}</g>
+      <text x="520" y="270" font-family="Inter,system-ui,sans-serif" font-size="130" font-weight="800" fill="${o.accent}" letter-spacing="-3" ${o.glow?'filter="url(#neon)"':''}>${o.wordmark}</text>
+      <text x="524" y="320" font-family="Inter,system-ui,sans-serif" font-size="22" font-weight="500" fill="${o.transparent?o.accent:'#9ca3af'}" letter-spacing="5" opacity="0.8">${o.tagline}</text>
+      <line x1="524" y1="345" x2="660" y2="345" stroke="${o.accent}" stroke-width="3" stroke-linecap="round"/>
+    `,
+  },
+  {
+    id:'og',
+    title:'OG / link-preview image',
+    meta:'1200×630 — used when the site URL is shared on X, FB, Telegram, Discord',
+    w:1200, h:630,
+    render: (o) => `
+      ${o.transparent ? '' : `<rect width="1200" height="630" fill="${o.bg}"/>`}
+      <g transform="translate(600 240) scale(12) translate(-12 -12)" stroke="${o.accent}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" ${o.glow?'filter="url(#neon)"':''}>${LOGO}</g>
+      <text x="600" y="500" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="90" font-weight="800" fill="${o.accent}" letter-spacing="-2" ${o.glow?'filter="url(#neon)"':''}>${o.wordmark}</text>
+      <text x="600" y="555" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="22" font-weight="500" fill="${o.transparent?o.accent:'#9ca3af'}" letter-spacing="4" opacity="0.8">${o.tagline}</text>
+    `,
+  },
+  {
+    id:'telegram-channel',
+    title:'Telegram channel photo',
+    meta:'512×512 — square, shown as circle in Telegram',
+    w:512, h:512,
+    render: (o) => `
+      ${o.transparent ? '' : `<rect width="512" height="512" fill="${o.bg}"/>`}
+      <g transform="translate(256 256) scale(12) translate(-12 -12)" stroke="${o.accent}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" ${o.glow?'filter="url(#neon)"':''}>${LOGO}</g>
+    `,
+  },
+  {
+    id:'favicon',
+    title:'Favicon',
+    meta:'64×64 — website tab icon (scales down to 16/32)',
+    w:64, h:64,
+    render: (o) => `
+      ${o.transparent ? '' : `<rect width="64" height="64" rx="8" fill="${o.bg}"/>`}
+      <g transform="translate(32 32) scale(1.6) translate(-12 -12)" stroke="${o.accent}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">${LOGO}</g>
+    `,
+  },
+  {
+    id:'wordmark',
+    title:'Wordmark only',
+    meta:'Horizontal wordmark for GitHub README, email signature, etc.',
+    w:800, h:200,
+    render: (o) => `
+      ${o.transparent ? '' : `<rect width="800" height="200" fill="${o.bg}"/>`}
+      <g transform="translate(30 50) scale(4.2) translate(-12 -12)" stroke="${o.accent}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" ${o.glow?'filter="url(#neon)"':''}>${LOGO}</g>
+      <text x="190" y="125" font-family="Inter,system-ui,sans-serif" font-size="80" font-weight="800" fill="${o.accent}" letter-spacing="-2" ${o.glow?'filter="url(#neon)"':''}>${o.wordmark}</text>
+    `,
+  },
+];
+
+const NEON_DEFS = `
+  <defs>
+    <filter id="neon" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="b1"/>
+      <feGaussianBlur stdDeviation="14" in="SourceGraphic" result="b2"/>
+      <feMerge><feMergeNode in="b2"/><feMergeNode in="b1"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+`;
+
+function buildSvg(asset, opts) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${asset.w}" height="${asset.h}" viewBox="0 0 ${asset.w} ${asset.h}">${NEON_DEFS}${asset.render(opts)}</svg>`;
+}
+
+function currentOpts() {
+  return {
+    wordmark: document.getElementById('wordmark').value,
+    tagline:  document.getElementById('tagline').value,
+    accent:   document.getElementById('accent').value,
+    bg:       document.getElementById('bg').value,
+    transparent: document.getElementById('transparent').checked,
+    glow:     document.getElementById('glow').checked,
+  };
+}
+
+function render() {
+  const opts = currentOpts();
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  ASSETS.forEach(asset => {
+    const svg = buildSvg(asset, opts);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <h2>${asset.title}</h2>
+      <p class="meta">${asset.meta}</p>
+      <div class="preview">${svg}</div>
+      <div class="actions">
+        <button onclick="downloadPng('${asset.id}')">Download PNG (${asset.w}×${asset.h})</button>
+        <button class="secondary" onclick="downloadSvg('${asset.id}')">Download SVG</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+async function svgToPng(svgString, w, h) {
+  const blob = new Blob([svgString], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.src = url;
+  await img.decode();
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, w, h);
+  URL.revokeObjectURL(url);
+  return new Promise(res => canvas.toBlob(res, 'image/png'));
+}
+
+async function downloadPng(id) {
+  const asset = ASSETS.find(a => a.id === id);
+  const svg = buildSvg(asset, currentOpts());
+  const blob = await svgToPng(svg, asset.w, asset.h);
+  triggerDownload(blob, `eventchain-${id}.png`);
+}
+
+function downloadSvg(id) {
+  const asset = ASSETS.find(a => a.id === id);
+  const svg = buildSvg(asset, currentOpts());
+  const blob = new Blob([svg], { type: 'image/svg+xml' });
+  triggerDownload(blob, `eventchain-${id}.svg`);
+}
+
+async function downloadAll() {
+  for (const asset of ASSETS) await downloadPng(asset.id);
+}
+
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+['wordmark','tagline','accent','bg','transparent','glow'].forEach(id => {
+  document.getElementById(id).addEventListener('input', render);
+  document.getElementById(id).addEventListener('change', render);
+});
+
+render();
+</script>
+
+</body>
+</html>
